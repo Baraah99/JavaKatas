@@ -10,6 +10,23 @@ public class ArrayReducer {
      */
     public static void reduceArray(int[] numbers) {
 
+        // Check if the array is valid and contains more than one element
+        if (numbers == null || numbers.length < 2) {
+            return;
+        }
+
+        // Initialize a variable to store the previous element
+        int prev = numbers[0];  // First element remains unchanged
+
+        // Iterate over the array starting from the second element
+        for (int i = 1; i < numbers.length; i++) {
+            // Modify the current element to be the difference between itself and the previous element
+            int current = numbers[i];
+            numbers[i] = current - prev;
+            prev = current;  // Update previous to the current element
+        }
+
+
     }
 
     public static void main(String[] args) {

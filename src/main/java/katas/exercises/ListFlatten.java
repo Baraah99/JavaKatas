@@ -12,8 +12,16 @@ public class ListFlatten {
      * @return a flat list containing all integers from the nested structure
      */
     public static List<Integer> flattenList(List<Object> nestedList) {
-        // hint: instanceof
-        return new ArrayList<>();
+        List<Integer> flatList = new ArrayList<>();
+        for (Object element : nestedList) {
+            if (element instanceof Integer) {
+                flatList.add((Integer) element);
+            } else if (element instanceof List) {
+                // Recursive call for nested lists
+                flatList.addAll(flattenList((List<Object>) element));
+            }
+        }
+        return flatList;
     }
 
     public static void main(String[] args) {

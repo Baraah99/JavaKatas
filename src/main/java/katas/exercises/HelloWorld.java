@@ -3,7 +3,7 @@ package katas.exercises;
 public class HelloWorld {
 
     public static String helloWorld() {
-        return "hello world";
+       return "hello world";
     }
 
     public static void main(String[] args) {

@@ -9,7 +9,20 @@ public class StringDigitSum {
      * @return the sum of all digits in the string
      */
     public static int sumOfDigits(String input) {
-        return 0;
+
+       if (input == null || input.isEmpty()) {
+            return 0; // Return 0 for null or empty strings
+        }
+
+        int sum = 0;
+
+        for (char c : input.toCharArray()) {
+            if (Character.isDigit(c)) { // Check if the character is a digit
+                sum += Character.getNumericValue(c); // Convert digit to its numeric value and add to sum
+            }
+        }
+
+        return sum;
     }
 
     public static void main(String[] args) {

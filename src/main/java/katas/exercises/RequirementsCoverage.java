@@ -1,6 +1,9 @@
 package katas.exercises;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RequirementsCoverage {
 
@@ -23,7 +26,44 @@ public class RequirementsCoverage {
      * @return a list of indices of the minimal subset of test cases that covers all requirements
      */
     public static List<Integer> selectMinimalTestCases(List<List<Integer>> testCases) {
-        return null;
+
+        // Set to keep track of all the covered requirements
+        Set<Integer> coveredRequirements = new HashSet<>();
+        // List to store the indices of the selected test cases
+        List<Integer> selectedTestCases = new ArrayList<>();
+
+        // Keep track of all requirements
+        Set<Integer> allRequirements = new HashSet<>();
+        for (List<Integer> testCase : testCases) {
+            allRequirements.addAll(testCase);
+        }
+
+        // While there are still uncovered requirements
+        while (coveredRequirements.size() < allRequirements.size()) {
+            int bestTestCaseIndex = -1;
+            int bestCoverage = 0;
+            Set<Integer> bestCoverageSet = new HashSet<>();
+
+            // Find the test case that covers the most uncovered requirements
+            for (int i = 0; i < testCases.size(); i++) {
+                List<Integer> testCase = testCases.get(i);
+                Set<Integer> uncoveredRequirements = new HashSet<>(testCase);
+                uncoveredRequirements.removeAll(coveredRequirements); // Remove already covered
+
+                // If this test case covers more uncovered requirements
+                if (uncoveredRequirements.size() > bestCoverage) {
+                    bestTestCaseIndex = i;
+                    bestCoverage = uncoveredRequirements.size();
+                    bestCoverageSet = uncoveredRequirements;
+                }
+            }
+
+            // Add the selected test case's index and covered requirements to the result
+            selectedTestCases.add(bestTestCaseIndex);
+            coveredRequirements.addAll(bestCoverageSet);
+        }
+
+        return selectedTestCases;
     }
 
     public static void main(String[] args) {

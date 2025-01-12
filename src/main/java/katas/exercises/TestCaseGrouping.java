@@ -26,7 +26,20 @@ public class TestCaseGrouping {
      * @return a list of groups, where each group contains the indices of test cases covering the same set of requirements
      */
     public static List<List<Integer>> groupTestCases(List<Integer> testCaseGroupSizes) {
-        return new ArrayList<>();
+
+
+        List<List<Integer>> groups = new ArrayList<>();
+        int currentIndex = 0;
+
+        for (int groupSize : testCaseGroupSizes) {
+            List<Integer> group = new ArrayList<>();
+            for (int i = 0; i < groupSize; i++) {
+                group.add(currentIndex++);
+            }
+            groups.add(group);
+        }
+
+        return groups;
     }
 
     public static void main(String[] args) {

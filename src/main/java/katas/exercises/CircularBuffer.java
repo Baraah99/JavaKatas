@@ -1,14 +1,6 @@
 package katas.exercises;
 
 public class CircularBuffer {
-    /**
-     * Design a circular buffer (ring buffer).
-     *
-     * The buffer should operate in constant time.
-     * When the buffer is full, adding a new element should overwrite the oldest element.
-     *
-     */
-
     private int[] buffer;
     private int head;
     private int tail;
@@ -20,7 +12,10 @@ public class CircularBuffer {
      * @param capacity the maximum number of elements the buffer can hold
      */
     public CircularBuffer(int capacity) {
-
+        buffer = new int[capacity];
+        head = 0;
+        tail = 0;
+        size = 0;
     }
 
     /**
@@ -29,7 +24,14 @@ public class CircularBuffer {
      * @param val the value to add
      */
     public void add(int val) {
-
+        // If the buffer is full, we overwrite the oldest element
+        if (size == buffer.length) {
+            head = (head + 1) % buffer.length; // Move head to the next position (overwrite the oldest element)
+        } else {
+            size++;
+        }
+        buffer[tail] = val; // Add new value at the tail position
+        tail = (tail + 1) % buffer.length; // Move tail to the next position
     }
 
     /**
@@ -38,8 +40,13 @@ public class CircularBuffer {
      * @return the oldest element, or -1 if the buffer is empty
      */
     public int get() {
-
-        return -1;
+        if (isEmpty()) {
+            return -1;
+        }
+        int value = buffer[head];
+        head = (head + 1) % buffer.length; // Move head to the next position
+        size--;
+        return value;
     }
 
     /**
@@ -48,8 +55,7 @@ public class CircularBuffer {
      * @return true if the buffer is full, false otherwise
      */
     public boolean isFull() {
-
-        return false;
+        return size == buffer.length;
     }
 
     /**
@@ -58,8 +64,7 @@ public class CircularBuffer {
      * @return true if the buffer is empty, false otherwise
      */
     public boolean isEmpty() {
-
-        return false;
+        return size == 0;
     }
 
     public static void main(String[] args) {
@@ -75,5 +80,3 @@ public class CircularBuffer {
         System.out.println(buffer.isFull()); // Output: true
     }
 }
-
-

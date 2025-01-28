@@ -5,7 +5,7 @@ public class ArrayDifference {
     /**
      * Finds the difference between the largest and smallest numbers in the array.
      *
-     * @param numbers the array of integers
+     * @param numbers the array of integer
      * @return the difference between the largest and smallest numbers
      */
     public static int findDifference(int[] numbers) {

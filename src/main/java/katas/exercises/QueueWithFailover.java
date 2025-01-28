@@ -5,18 +5,7 @@ import java.util.*;
 public class QueueWithFailover {
     /**
      * A job queue data structure with failover support.
-     *
-     * A job queue is a messaging system used to manage the flow of work between components or applications.
-     * In this system, jobs (or messages) are sent to the queue by PRODUCERS and retrieved by CONSUMERS for processing.
-     *
-     * When a job is consumed by a consumer, they have `jobTimeout` seconds to finish the job.
-     * The job is not permanently deleted from the queue; instead, it is temporarily hidden.
-     * If the consumer completes processing the job within the allocated time, they mark the job as done (jobDone()),
-     * and the job should be permanently deleted.
-     * Otherwise, if they fail to process the job and the job processing times out, the job should be returned
-     * to the end of the queue (by the returnExpiredJobsToQueue()), allowing it to be consumed again.
      */
-
     private int jobTimeout;
     private Queue<String> jobs;
     private Map<String, Long> hiddenJobs;
@@ -25,7 +14,7 @@ public class QueueWithFailover {
         /**
          * Initialize an empty job queue.
          */
-        this.jobTimeout = jobTimeout;
+        this.jobTimeout = jobTimeout * 1000; // Convert to milliseconds
         this.jobs = new LinkedList<>();
         this.hiddenJobs = new HashMap<>();
     }
@@ -36,7 +25,7 @@ public class QueueWithFailover {
          *
          * @return boolean: True if the job queue is empty, False otherwise.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return jobs.isEmpty() && hiddenJobs.isEmpty();
     }
 
     public void sendJob(String job) {
@@ -45,7 +34,7 @@ public class QueueWithFailover {
          *
          * @param job The job to be added to the queue.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        jobs.offer(job);
     }
 
     public String getJob() throws EmptyQueueException {
@@ -55,18 +44,35 @@ public class QueueWithFailover {
          * @return String: The job at the front of the queue.
          * @throws EmptyQueueException: If the job queue is empty.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        if (isEmpty()) {
+            throw new EmptyQueueException("The job queue is empty");
+        }
+
+        // Check the hidden jobs that need to be returned to the main queue
+        returnExpiredJobsToQueue();
+
+        String job = jobs.poll();
+        if (job != null) {
+            // Mark the job as hidden for processing
+            hiddenJobs.put(job, System.currentTimeMillis());
+        }
+
+        return job;
     }
 
     public void jobDone(String job) {
         /**
          * This function is called when a consumer completes a consumed job.
-         * The job should be deleted permanently (from the hidden).
+         * The job should be deleted permanently (from the hidden jobs).
          *
          * @param job The job to be deleted permanently from the queue.
          * @throws IllegalArgumentException: If the job is not found in the hidden jobs.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        if (!hiddenJobs.containsKey(job)) {
+            throw new IllegalArgumentException("Job not found in hidden jobs");
+        }
+
+        hiddenJobs.remove(job);
     }
 
     public int size() {
@@ -75,7 +81,7 @@ public class QueueWithFailover {
          *
          * @return int: The number of jobs in the queue.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return jobs.size();
     }
 
     public int inFlightSize() {
@@ -84,14 +90,24 @@ public class QueueWithFailover {
          *
          * @return int: The number of hidden jobs in the queue.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return hiddenJobs.size();
     }
 
     public void returnExpiredJobsToQueue() {
         /**
          * Return hidden jobs that were retrieved more than `jobTimeout` seconds ago back to the job queue.
          */
-        throw new UnsupportedOperationException("Not implemented yet.");
+        long currentTime = System.currentTimeMillis();
+        Iterator<Map.Entry<String, Long>> iterator = hiddenJobs.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<String, Long> entry = iterator.next();
+            if (currentTime - entry.getValue() > jobTimeout) {
+                // Job expired, return it to the queue
+                jobs.offer(entry.getKey());
+                iterator.remove(); // Remove from hidden jobs
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -103,22 +119,26 @@ public class QueueWithFailover {
 
         System.out.println("Job Queue Size: " + jobQueue.size());
 
-        String currentJob = jobQueue.getJob();
-        jobQueue.jobDone(currentJob);
-
-        currentJob = jobQueue.getJob();
         try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        jobQueue.returnExpiredJobsToQueue();
-
-        try {
+            String currentJob = jobQueue.getJob();
+            System.out.println("Current Job: " + currentJob);
             jobQueue.jobDone(currentJob);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Job not found as it was expired and returned to the main queue");
+
+            currentJob = jobQueue.getJob();
+            System.out.println("Current Job: " + currentJob);
+
+            // Simulate job expiration
+            Thread.sleep(4000);
+
+            jobQueue.returnExpiredJobsToQueue();
+
+            jobQueue.jobDone(currentJob);
+        } catch (EmptyQueueException | IllegalArgumentException | InterruptedException e) {
+            System.err.println("Error: " + e.getMessage());
         }
+
+        System.out.println("Job Queue Size: " + jobQueue.size());
+        System.out.println("In-Flight Jobs: " + jobQueue.inFlightSize());
     }
 
     static class EmptyQueueException extends RuntimeException {

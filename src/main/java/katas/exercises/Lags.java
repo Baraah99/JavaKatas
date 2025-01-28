@@ -2,6 +2,7 @@ package katas.exercises;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Comparator;
 
 /**
  * DroneFly Inc. operates a fleet of drones for package deliveries. Each drone can carry only one package at a time.
@@ -28,13 +29,13 @@ public class Lags {
     static class Request {
         String id;
         int startTime;
-        int duration;
+        int endTime;
         int payment;
 
         public Request(String id, int startTime, int duration, int payment) {
             this.id = id;
             this.startTime = startTime;
-            this.duration = duration;
+            this.endTime = startTime + duration;
             this.payment = payment;
         }
     }
@@ -46,7 +47,45 @@ public class Lags {
      * @return the maximum profit
      */
     public static int maximizeProfit(List<Request> requests) {
-        return 0;
+        // Sort requests by their end time
+        requests.sort(Comparator.comparingInt(r -> r.endTime));
+
+        // Dynamic programming arrays
+        int[] dp = new int[requests.size()];
+        dp[0] = requests.get(0).payment;
+
+        for (int i = 1; i < requests.size(); i++) {
+            // Include current request
+            int includeProfit = requests.get(i).payment;
+            int lastNonConflicting = findLastNonConflicting(requests, i);
+            if (lastNonConflicting != -1) {
+                includeProfit += dp[lastNonConflicting];
+            }
+
+            // Exclude current request
+            int excludeProfit = dp[i - 1];
+
+            // Take the maximum of include and exclude
+            dp[i] = Math.max(includeProfit, excludeProfit);
+        }
+
+        return dp[requests.size() - 1];
+    }
+
+    /**
+     * Finds the index of the last request that does not conflict with the given request.
+     *
+     * @param requests the list of delivery requests
+     * @param index the index of the current request
+     * @return the index of the last non-conflicting request, or -1 if none exists
+     */
+    private static int findLastNonConflicting(List<Request> requests, int index) {
+        for (int i = index - 1; i >= 0; i--) {
+            if (requests.get(i).endTime <= requests.get(index).startTime) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public static void main(String[] args) {
@@ -61,5 +100,3 @@ public class Lags {
         System.out.println("Maximum Profit: " + maxProfit); // Output: 120
     }
 }
-
-

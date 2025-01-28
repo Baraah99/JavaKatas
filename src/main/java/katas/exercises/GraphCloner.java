@@ -23,7 +23,31 @@ class GraphCloner {
      * @return the starting node of the cloned graph
      */
     public static Node cloneGraph(Node node) {
-        return null;
+        if (node == null) return null;
+
+        Map<Node, Node> visited = new HashMap<>();
+        return cloneNode(node, visited);
+    }
+    /**
+     * Helper method to clone a node and its neighbors recursively.
+     *
+     * @param node the node to clone
+     * @param visited a map to track cloned nodes
+     * @return the cloned node
+     */
+    private static Node cloneNode(Node node, Map<Node, Node> visited) {
+        if (visited.containsKey(node)) {
+            return visited.get(node);
+        }
+
+        Node clone = new Node(node.val);
+        visited.put(node, clone);
+
+        for (Node neighbor : node.neighbors) {
+            clone.neighbors.add(cloneNode(neighbor, visited));
+        }
+
+        return clone;
     }
 
     public static void main(String[] args) {

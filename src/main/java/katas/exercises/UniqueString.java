@@ -11,7 +11,19 @@ public class UniqueString {
      * @return true if all characters are unique, false otherwise
      */
     public static boolean isUnique(String str) {
-        return true;
+        if (str == null) {
+            return true; // Null strings are considered to have unique characters
+        }
+
+        // Use a HashSet to track characters
+        HashSet<Character> seen = new HashSet<>();
+        for (char c : str.toLowerCase().toCharArray()) {
+            if (seen.contains(c)) {
+                return false; // Duplicate character found
+            }
+            seen.add(c);
+        }
+        return true; // All characters are unique
     }
 
     public static void main(String[] args) {

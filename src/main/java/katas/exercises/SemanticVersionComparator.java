@@ -10,6 +10,25 @@ public class SemanticVersionComparator {
      * @return -1 if version1 < version2, 1 if version1 > version2, 0 if they are equal
      */
     public static int compareVersions(String version1, String version2) {
+
+        // Split both version strings by "."
+        String[] v1Parts = version1.split("\\.");
+        String[] v2Parts = version2.split("\\.");
+
+        // Convert each part to an integer and compare
+        for (int i = 0; i < 3; i++) {
+            int v1 = Integer.parseInt(v1Parts[i]);
+            int v2 = Integer.parseInt(v2Parts[i]);
+
+            // Compare the corresponding parts
+            if (v1 > v2) {
+                return 1;  // version1 is greater
+            } else if (v1 < v2) {
+                return -1; // version1 is smaller
+            }
+        }
+
+        // If all parts are equal
         return 0;
     }
 

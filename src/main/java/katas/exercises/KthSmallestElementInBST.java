@@ -1,5 +1,7 @@
 package katas.exercises;
 
+import java.util.Stack;
+
 /**
  * Kth Smallest Element in a Binary Search Tree
  *
@@ -21,7 +23,25 @@ package katas.exercises;
 public class KthSmallestElementInBST {
 
     public static int kthSmallest(TreeNode root, int k) {
-        return -1;
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode current = root;
+        int count = 0;
+
+        // In-order traversal
+        while (!stack.isEmpty() || current != null) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+            current = stack.pop();
+            count++;
+            if (count == k) {
+                return current.val;
+            }
+            current = current.right;
+        }
+
+        return -1; // This should never be reached since k is always valid
     }
 
     public static void main(String[] args) {

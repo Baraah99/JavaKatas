@@ -9,7 +9,17 @@ public class TrueCounter {
      * @return the count of true values in the array
      */
     public static int countTrueValues(boolean[] array) {
-        return 0;
+        if (array == null || array.length == 0) {
+            return 0; // Return 0 for null or empty arrays
+        }
+
+        int count = 0;
+        for (boolean value : array) {
+            if (value) {
+                count++; // Increment count for each true value
+            }
+        }
+        return count;
     }
 
     public static void main(String[] args) {

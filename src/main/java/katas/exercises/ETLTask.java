@@ -78,9 +78,61 @@ public class ETLTask {
             // Extract data from source database
             ResultSet rs = sourceStmt.executeQuery("SELECT * FROM users");
 
+            // Prepare an insert statement for the target database
+            String insertSQL = "INSERT INTO transformed_users (user_id, full_name, email, age_group, years_registered) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = targetConn.prepareStatement(insertSQL)) {
+                while (rs.next()) {
+                    // Extract data from the source row
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    String email = rs.getString("email");
+                    int age = rs.getInt("age");
+                    String registrationDate = rs.getString("registration_date");
 
-            // TODO ....
+                    // Transform data
+                    String ageGroup = getAgeGroup(age);
+                    int yearsRegistered = calculateYearsRegistered(registrationDate);
+
+                    // Insert transformed data into the target table
+                    pstmt.setInt(1, id);
+                    pstmt.setString(2, name);
+                    pstmt.setString(3, email);
+                    pstmt.setString(4, ageGroup);
+                    pstmt.setInt(5, yearsRegistered);
+                    pstmt.addBatch();
+                }
+                // Execute batch insert
+                pstmt.executeBatch();
+            }
         }
+    }
+
+    /**
+     * Determines the age group based on the user's age.
+     *
+     * @param age the user's age
+     * @return the age group as a string
+     */
+    private static String getAgeGroup(int age) {
+        if (age < 30) {
+            return "Under 30";
+        } else if (age <= 60) {
+            return "30-60";
+        } else {
+            return "60+";
+        }
+    }
+
+    /**
+     * Calculates the number of years since the registration date.
+     *
+     * @param registrationDate the registration date in YYYY-MM-DD format
+     * @return the number of years registered
+     */
+    private static int calculateYearsRegistered(String registrationDate) {
+        LocalDate regDate = LocalDate.parse(registrationDate);
+        LocalDate currentDate = LocalDate.now();
+        return Period.between(regDate, currentDate).getYears();
     }
 
     public static void main(String[] args) throws SQLException {
